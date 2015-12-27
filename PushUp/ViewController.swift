@@ -14,7 +14,10 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 
     let captureSession = AVCaptureSession();
     var captureDevice : AVCaptureDevice?;
-    var previewLayer : AVCaptureVideoPreviewLayer?
+    var counter : Int = 0;
+    var inProgress : Bool = false;
+
+    @IBOutlet weak var counterLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,9 +52,6 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             print("error: \(err?.localizedDescription)");
         }
         
-        previewLayer = AVCaptureVideoPreviewLayer(session: captureSession);
-        self.view.layer.addSublayer(previewLayer!);
-        previewLayer?.frame = self.view.layer.frame;
         captureSession.startRunning();
         let output = AVCaptureVideoDataOutput();
         output.setSampleBufferDelegate(self, queue: dispatch_queue_create("sample buffer", DISPATCH_QUEUE_SERIAL));
@@ -68,8 +68,17 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         let metadataDict : Dictionary = CMCopyDictionaryOfAttachments(nil, sampleBuffer, kCMAttachmentMode_ShouldPropagate)! as Dictionary;
         let exifMetadata : NSMutableDictionary = metadataDict[kCGImagePropertyExifDictionary as NSString] as! NSMutableDictionary;
         let brightnessValue = exifMetadata[kCGImagePropertyExifBrightnessValue as NSString] as! Float;
-        print("brightness: %.2f", brightnessValue);
-        
+        if (brightnessValue <= 1.0 && !inProgress) {
+            inProgress = true;
+        }
+        if (brightnessValue > 1.0 && inProgress) {
+            inProgress = false;
+            counter++;
+            dispatch_async(dispatch_get_main_queue()) {
+                self.counterLabel.text = String(format:"Push ups: %d", self.counter);
+            }
+            print(String(format:"brightness value: %.2f", brightnessValue));
+        }
     }
 }
 
