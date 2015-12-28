@@ -19,6 +19,12 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 
     @IBOutlet weak var counterLabel: UILabel!
     
+    @IBAction func onResetClick(sender: UIButton) {
+        self.counter = 0;
+        dispatch_async(dispatch_get_main_queue()) {
+            self.counterLabel.text = String(format:"%d", self.counter);
+        }
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -75,7 +81,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             inProgress = false;
             counter++;
             dispatch_async(dispatch_get_main_queue()) {
-                self.counterLabel.text = String(format:"Push ups: %d", self.counter);
+                self.counterLabel.text = String(format:"%d", self.counter);
             }
             print(String(format:"brightness value: %.2f", brightnessValue));
         }
